@@ -1,0 +1,37 @@
+{
+    "name": "alex-kalanis/kw_files_mapper",
+    "description": "Accessing stored entries as files in database",
+    "keywords": [
+        "database",
+        "files",
+        "file"
+    ],
+    "license": "BSD-3-Clause",
+    "type": "library",
+    "require": {
+        "alex-kalanis/kw_files": ">=3.0",
+        "alex-kalanis/kw_mapper": ">=3.0",
+        "ext-mbstring": "*",
+        "php": ">=7.2.0"
+    },
+    "require-dev": {
+        "alex-kalanis/kw_storage": ">=3.0",
+        "alex-kalanis/kw_paths": ">=2.0",
+        "phpstan/phpstan": "^1.0",
+        "phpstan/phpstan-phpunit": "^1.0",
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "phpunit/phpunit": ">=7.2 <=9",
+        "ext-pdo": "*"
+    },
+    "suggest": {
+    },
+    "autoload": {
+        "psr-4": {
+            "kalanis\\kw_files_mapper\\": "php-src/"
+        }
+    },
+    "scripts": {
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

@@ -1,0 +1,21 @@
+parameters:
+	level: 6
+	paths:
+		- 'php-src'
+#	scanFiles:
+#		- 'php-tests/CommonTestClass.php'
+	excludePaths:
+		- 'php-tests/_autoload.php'
+		- 'php-tests/_bootstrap.php'
+#		- 'php-tests/CommonTestClass.php'
+	bootstrapFiles:
+		- 'php-tests/_autoload.php'
+#	ignoreErrors:
+#		-
+#			message: '#expects resource, resource\|null given\.#'
+#			path: 'php-src/Simple/Memory.php'
+#			# quality WTF - already covered in that "exists" check
+#		-
+#			message: '#Cannot call method [a-z]+\(\) on kalanis\\kw_cache\\Cache\\Formatted\|kalanis\\kw_cache\\Interfaces\\ICache\|null\.#'
+#			path: 'php-src/StaticCache.php'
+#			# quality WTF - already covered in that "exists" check
