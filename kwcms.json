@@ -1,7 +1,7 @@
 {
   "author": "kalanis",
   "name": "kw_files_mapper",
-  "description": "Accessing stored entries as files in database",
+  "description": "Accessing entries stored in database as files",
   "source": "https://github.com/alex-kalanis/kw_files_mapper",
   "license": "BSD-3-Clause",
   "require": {
