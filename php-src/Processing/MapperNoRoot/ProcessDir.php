@@ -10,9 +10,9 @@ use kalanis\kw_files\Interfaces\IProcessNodes;
 use kalanis\kw_files\Interfaces\ITypes;
 use kalanis\kw_files\Node;
 use kalanis\kw_files\Traits\TLang;
+use kalanis\kw_files\Traits\TSubPart;
 use kalanis\kw_files_mapper\Support\Process;
 use kalanis\kw_files_mapper\Support\TDir;
-use kalanis\kw_files_mapper\Support\TSubPart;
 use kalanis\kw_mapper\MapperException;
 use kalanis\kw_mapper\Records\ARecord;
 use kalanis\kw_mapper\Search\Search;
@@ -106,10 +106,12 @@ class ProcessDir implements IProcessDirs
     protected function createRecord(string $name, ?ARecord $parentNode): ARecord
     {
         $record = $this->getLookupRecord();
-        $record->__set(
-            $this->getTranslation()->getParentKey(),
-            $parentNode ? strval($parentNode->__get($this->getTranslation()->getPrimaryKey())) : null
-        );
+        if (!is_null($parentNode)) {
+            $record->__set(
+                $this->getTranslation()->getParentKey(),
+                strval($parentNode->__get($this->getTranslation()->getPrimaryKey()))
+            );
+        }
         $record->__set(
             $this->getTranslation()->getCurrentKey(),
             $name
@@ -120,7 +122,6 @@ class ProcessDir implements IProcessDirs
         );
         $record->save();
         $record->load();
-
         return $record;
     }
 
@@ -200,10 +201,7 @@ class ProcessDir implements IProcessDirs
     {
         try {
             if ($this->isSubPart($dest, $source)) {
-                throw new FilesException($this->getLang()->flCannotCopyDir(
-                    Stuff::arrayToPath($source),
-                    Stuff::arrayToPath($dest)
-                ));
+                return false;
             }
 
             $ptDst = new ArrayPath();
@@ -211,14 +209,14 @@ class ProcessDir implements IProcessDirs
 
             $src = $this->getEntry($source);
             if (!$src) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($source)));
+                return false;
             }
 
             $dst = $this->getEntry($ptDst->getArrayDirectory());
 
             $tgt = $this->getEntry([$ptDst->getFileName()], $dst);
             if ($tgt) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($dest)));
+                return false;
             }
 
             $new = $this->getLookupRecord();
@@ -241,10 +239,7 @@ class ProcessDir implements IProcessDirs
     {
         try {
             if ($this->isSubPart($dest, $source)) {
-                throw new FilesException($this->getLang()->flCannotMoveDir(
-                    Stuff::arrayToPath($source),
-                    Stuff::arrayToPath($dest)
-                ));
+                return false;
             }
 
             $ptDst = new ArrayPath();
@@ -252,14 +247,14 @@ class ProcessDir implements IProcessDirs
 
             $src = $this->getEntry($source);
             if (!$src) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($source)));
+                return false;
             }
 
             $dst = $this->getEntry($ptDst->getArrayDirectory());
 
             $tgt = $this->getEntry([$ptDst->getFileName()], $dst);
             if ($tgt) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($dest)));
+                return false;
             }
 
             $src->__set($this->getTranslation()->getCurrentKey(), $ptDst->getFileName());
@@ -284,7 +279,7 @@ class ProcessDir implements IProcessDirs
             if ($deep) {
                 return $this->removeCycle($start);
             } elseif ($this->isDir($start)) {
-                return $this->removeDir($start);
+                return $this->removeSingleDir($start);
             } else {
                 return false;
             }
@@ -332,7 +327,10 @@ class ProcessDir implements IProcessDirs
     {
         if ($this->isDir($entry)) {
             $search = new Search($this->getLookupRecord());
-            $search->exact($this->getTranslation()->getParentKey(), strval($entry->__get($this->getTranslation()->getPrimaryKey())));
+            $search->exact(
+                $this->getTranslation()->getParentKey(),
+                strval($entry->__get($this->getTranslation()->getPrimaryKey()))
+            );
             $fileListing = $search->getResults();
             foreach ($fileListing as $fileRecord) {
                 $this->removeCycle($fileRecord);
@@ -346,10 +344,13 @@ class ProcessDir implements IProcessDirs
      * @throws MapperException
      * @return bool
      */
-    protected function removeDir(ARecord $entry): bool
+    protected function removeSingleDir(ARecord $entry): bool
     {
         $subs = new Search($this->getLookupRecord());
-        $subs->exact($this->getTranslation()->getParentKey(), strval($entry->__get($this->getTranslation()->getPrimaryKey())));
+        $subs->exact(
+            $this->getTranslation()->getParentKey(),
+            strval($entry->__get($this->getTranslation()->getPrimaryKey()))
+        );
         if (1 > $subs->getCount()) {
             return $entry->delete();
         } else {

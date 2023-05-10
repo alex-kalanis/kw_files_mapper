@@ -104,7 +104,7 @@ class ProcessFile implements IProcessFiles
         try {
             $dstRec = $this->getEntry($dest);
             if ($dstRec) {
-                throw new FilesException($this->getLang()->flCannotCopyFile($src, $dst));
+                return false;
             }
 
             return $this->saveFile($dest, $this->readFile($source));
@@ -128,7 +128,7 @@ class ProcessFile implements IProcessFiles
 
             $tgt = $this->getEntry([$ptDst->getFileName()], $dst);
             if ($tgt) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($dest)));
+                return false;
             }
 
             $src->__set($this->getTranslation()->getCurrentKey(), $ptDst->getFileName());

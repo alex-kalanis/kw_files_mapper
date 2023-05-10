@@ -99,6 +99,17 @@ abstract class AStorageTest extends CommonTestClass
         $this->assertEquals(13, $this->database->rowCount());
     }
 
+    /**
+     * @throws MapperException
+     */
+    protected function dataClear(): void
+    {
+        $this->assertTrue($this->database->exec($this->dropTable(), []));
+        $this->assertTrue($this->database->exec($this->basicTable(), []));
+        $this->assertTrue($this->database->exec($this->fillTable2(), []));
+        $this->assertEquals(1, $this->database->rowCount());
+    }
+
     protected function dropTable(): string
     {
         return 'DROP TABLE IF EXISTS "my_local_data"';
@@ -107,7 +118,7 @@ abstract class AStorageTest extends CommonTestClass
     protected function basicTable(): string
     {
         return 'CREATE TABLE IF NOT EXISTS "my_local_data" (
-  "md_id" INTEGER PRIMARY KEY,
+  "md_id" INTEGER PRIMARY KEY AUTOINCREMENT,
   "md_parent" INTEGER NULL,
   "md_name" TEXT NULL,
   "md_content" TEXT NULL,
@@ -133,6 +144,13 @@ abstract class AStorageTest extends CommonTestClass
 (13,  1,   "dummy2.txt", "qwertzuiopasdfghjklyxcvbnm0123456789", 123456789),
 (14,  1,   "other1.txt", "qwertzuiopasdfghjklyxcvbnm0123456789", 123456789),
 (20,  1,   "other2.txt", "qwertzuiopasdfghjklyxcvbnm0123456789", 123456789)
+';
+    }
+
+    protected function fillTable2(): string
+    {
+        return 'INSERT INTO "my_local_data" ("md_id", "md_parent", "md_name", "md_content", "md_created") VALUES
+( 1, null, "",           "' . IProcessNodes::STORAGE_NODE_KEY . '", null) -- /data/tree
 ';
     }
 }

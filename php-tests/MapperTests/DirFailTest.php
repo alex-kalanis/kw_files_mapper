@@ -82,8 +82,7 @@ class DirFailTest extends AStorageTest
         $this->dataRefill();
 
         $lib = $this->getDirLib();
-        $this->expectException(FilesException::class);
-        $lib->copyDir(['not source'], ['extra2']);
+        $this->assertFalse($lib->copyDir(['not source'], ['extra2']));
     }
 
     /**
@@ -101,8 +100,7 @@ class DirFailTest extends AStorageTest
         $this->dataRefill();
 
         $lib = $this->getDirLib();
-        $this->expectException(FilesException::class);
-        $lib->copyDir(['next_one', 'sub_one'], ['unknown', 'last_one']);
+        $this->assertFalse($lib->copyDir(['next_one', 'sub_one'], ['unknown', 'last_one']));
     }
 
     /**
@@ -120,8 +118,7 @@ class DirFailTest extends AStorageTest
         $this->dataRefill();
 
         $lib = $this->getDirLib();
-        $this->expectException(FilesException::class);
-        $lib->copyDir(['next_one', 'sub_one'], ['last_one']);
+        $this->assertFalse($lib->copyDir(['next_one', 'sub_one'], ['last_one']));
     }
 
     /**
@@ -139,8 +136,7 @@ class DirFailTest extends AStorageTest
         $this->dataRefill();
 
         $lib = $this->getDirLib();
-        $this->expectException(FilesException::class);
-        $lib->copyDir(['next_one', 'sub_one'], ['next_one', 'sub_one', 'deeper']);
+        $this->assertFalse($lib->copyDir(['next_one', 'sub_one'], ['next_one', 'sub_one', 'deeper']));
     }
 
     /**
@@ -177,8 +173,7 @@ class DirFailTest extends AStorageTest
         $this->dataRefill();
 
         $lib = $this->getDirLib();
-        $this->expectException(FilesException::class);
-        $lib->moveDir(['not source'], ['extra2']);
+        $this->assertFalse($lib->moveDir(['not source'], ['extra2']));
     }
 
     /**
@@ -196,8 +191,7 @@ class DirFailTest extends AStorageTest
         $this->dataRefill();
 
         $lib = $this->getDirLib();
-        $this->expectException(FilesException::class);
-        $lib->moveDir(['next_one', 'sub_one'], ['unknown', 'last_one']);
+        $this->assertFalse($lib->moveDir(['next_one', 'sub_one'], ['unknown', 'last_one']));
     }
 
     /**
@@ -215,8 +209,7 @@ class DirFailTest extends AStorageTest
         $this->dataRefill();
 
         $lib = $this->getDirLib();
-        $this->expectException(FilesException::class);
-        $lib->moveDir(['next_one', 'sub_one'], ['last_one']);
+        $this->assertFalse($lib->moveDir(['next_one', 'sub_one'], ['last_one']));
     }
 
     /**
@@ -234,8 +227,7 @@ class DirFailTest extends AStorageTest
         $this->dataRefill();
 
         $lib = $this->getDirLib();
-        $this->expectException(FilesException::class);
-        $lib->moveDir(['next_one', 'sub_one'], ['next_one', 'sub_one', 'deeper']);
+        $this->assertFalse($lib->moveDir(['next_one', 'sub_one'], ['next_one', 'sub_one', 'deeper']));
     }
 
     /**
@@ -291,5 +283,17 @@ class DirFailTest extends AStorageTest
 
         $lib = $this->getDirLib();
         $this->assertFalse($lib->deleteDir(['next_one']));
+    }
+
+    /**
+     * @throws FilesException
+     * @throws PathsException
+     */
+    public function testDeepDeleteFail(): void
+    {
+        $lib = $this->getDirLib();
+        $this->assertTrue($lib->createDir(['some', 'more'], true));
+        $this->assertFalse($lib->deleteDir(['some']));
+        $this->assertTrue($lib->deleteDir(['some'], true));
     }
 }

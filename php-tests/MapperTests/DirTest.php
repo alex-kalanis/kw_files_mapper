@@ -42,6 +42,71 @@ class DirTest extends AStorageTest
      * @throws MapperException
      * @throws PathsException
      */
+    public function testRead0(): void
+    {
+        // fill with own tree, then getting that tree
+        if ($this->skipIt) {
+            $this->markTestSkipped('Skipped by config');
+            return;
+        }
+
+        $this->dataClear();
+
+        $procFile = new Mapper\ProcessFile(new SQLiteTestRecord(), new Process\Translate());
+        $lib = new Mapper\ProcessDir(new SQLiteTestRecord(), new Process\Translate());
+
+        $lib->createDir(['other', 'amogus'], true);
+        $procFile->saveFile(['other', 'sus'], 'abcdef123456');
+        $procFile->saveFile(['red'], '123456789abcdefghi');
+
+        $subList = $lib->readDir([]);
+        usort($subList, [$this, 'sortingPaths']);
+
+        $entry = reset($subList);
+        /** @var Node $entry */
+        $this->assertEquals([], $entry->getPath());
+        $this->assertEquals(ITypes::TYPE_DIR, $entry->getType());
+        $this->assertTrue($entry->isDir());
+        $this->assertFalse($entry->isFile());
+
+        $entry = next($subList);
+        $this->assertEquals(['other'], $entry->getPath());
+        $this->assertEquals(ITypes::TYPE_DIR, $entry->getType());
+        $this->assertTrue($entry->isDir());
+        $this->assertFalse($entry->isFile());
+
+        $entry = next($subList);
+        $this->assertEquals(['red'], $entry->getPath());
+        $this->assertEquals(ITypes::TYPE_FILE, $entry->getType());
+        $this->assertFalse($entry->isDir());
+        $this->assertTrue($entry->isFile());
+
+        $this->assertFalse(next($subList));
+
+        $subList = $lib->readDir(['other'], true);
+        usort($subList, [$this, 'sortingPaths']);
+
+        $entry = reset($subList);
+        /** @var Node $entry */
+        $this->assertEquals([], $entry->getPath());
+        $this->assertEquals(ITypes::TYPE_DIR, $entry->getType());
+
+        $entry = next($subList);
+        $this->assertEquals(['amogus'], $entry->getPath());
+        $this->assertEquals(ITypes::TYPE_DIR, $entry->getType());
+
+        $entry = next($subList);
+        $this->assertEquals(['sus'], $entry->getPath());
+        $this->assertEquals(ITypes::TYPE_FILE, $entry->getType());
+
+        $this->assertFalse(next($subList));
+    }
+
+    /**
+     * @throws FilesException
+     * @throws MapperException
+     * @throws PathsException
+     */
     public function testRead1(): void
     {
         if ($this->skipIt) {
@@ -218,8 +283,8 @@ class DirTest extends AStorageTest
         $this->dataRefill();
 
         $lib = $this->getLib();
-        $this->assertTrue($lib->createDir(['extra']));
-        $this->assertTrue($lib->deleteDir(['extra']));
+        $this->assertTrue($lib->createDir(['another']));
+        $this->assertTrue($lib->deleteDir(['another']));
     }
 
     /**

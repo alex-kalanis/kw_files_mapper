@@ -10,9 +10,9 @@ use kalanis\kw_files\Interfaces\IProcessNodes;
 use kalanis\kw_files\Interfaces\ITypes;
 use kalanis\kw_files\Node;
 use kalanis\kw_files\Traits\TLang;
+use kalanis\kw_files\Traits\TSubPart;
 use kalanis\kw_files_mapper\Support\Process;
 use kalanis\kw_files_mapper\Support\TDir;
-use kalanis\kw_files_mapper\Support\TSubPart;
 use kalanis\kw_mapper\MapperException;
 use kalanis\kw_mapper\Records\ARecord;
 use kalanis\kw_mapper\Search\Search;
@@ -204,10 +204,7 @@ class ProcessDir implements IProcessDirs
     {
         try {
             if ($this->isSubPart($dest, $source)) {
-                throw new FilesException($this->getLang()->flCannotCopyDir(
-                    Stuff::arrayToPath($source),
-                    Stuff::arrayToPath($dest)
-                ));
+                return false;
             }
 
             $ptDst = new ArrayPath();
@@ -215,17 +212,17 @@ class ProcessDir implements IProcessDirs
 
             $src = $this->getEntry($source);
             if (!$src) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($source)));
+                return false;
             }
 
             $dst = $this->getEntry($ptDst->getArrayDirectory());
             if (!$dst) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($ptDst->getArrayDirectory())));
+                return false;
             }
 
             $tgt = $this->getEntry([$ptDst->getFileName()], $dst);
             if ($tgt) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($dest)));
+                return false;
             }
 
             $new = $this->getLookupRecord();
@@ -248,10 +245,7 @@ class ProcessDir implements IProcessDirs
     {
         try {
             if ($this->isSubPart($dest, $source)) {
-                throw new FilesException($this->getLang()->flCannotMoveDir(
-                    Stuff::arrayToPath($source),
-                    Stuff::arrayToPath($dest)
-                ));
+                return false;
             }
 
             $ptDst = new ArrayPath();
@@ -259,17 +253,17 @@ class ProcessDir implements IProcessDirs
 
             $src = $this->getEntry($source);
             if (!$src) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($source)));
+                return false;
             }
 
             $dst = $this->getEntry($ptDst->getArrayDirectory());
             if (!$dst) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($ptDst->getArrayDirectory())));
+                return false;
             }
 
             $tgt = $this->getEntry([$ptDst->getFileName()], $dst);
             if ($tgt) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($dest)));
+                return false;
             }
 
             $src->__set($this->getTranslation()->getCurrentKey(), $ptDst->getFileName());

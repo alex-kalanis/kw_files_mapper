@@ -62,30 +62,26 @@ class ProcessFile implements IProcessFiles
             $path = Stuff::arrayToPath($entry);
 
             if (1 > count($entry)) {
-                throw new FilesException($this->getLang()->flCannotSaveFile(''));
-            } elseif (2 > count($entry)) {
-                $name = strval(end($entry));
-                $current = $this->getEntry($entry);
-                $parent = null;
-            } else {
-                $parentPath = array_slice($entry, 0, -1);
+                throw new FilesException($this->getLang()->flCannotSaveFile($path));
+            }
 
-                $name = strval(end($entry));
-                $parent = $this->getEntry($parentPath);
-                if (is_null($parent)) {
-                    throw new FilesException($this->getLang()->flCannotSaveFile($path));
-                }
+            $tgtArr = new ArrayPath();
+            $tgtArr->setArray($entry);
 
-                $current = $this->getEntry([$name], $parent);
+            $current = $this->getEntry($entry);
+            $parent = $this->getEntry($tgtArr->getArrayDirectory());
+
+            if (!empty($tgtArr->getArrayDirectory()) && empty($parent)) {
+                throw new FilesException($this->getLang()->flCannotSaveFile($path));
             }
 
             if (is_null($current)) {
                 $current = $this->getLookupRecord();
                 $current->__set($this->getTranslation()->getParentKey(), $parent ? strval($parent->__get($this->getTranslation()->getPrimaryKey())) : null);
-                $current->__set($this->getTranslation()->getCurrentKey(), $name);
+                $current->__set($this->getTranslation()->getCurrentKey(), $tgtArr->getFileName());
             }
 
-            $current->__set($this->getTranslation()->getContentKey(), $this->contentToString($name, $content));
+            $current->__set($this->getTranslation()->getContentKey(), $this->contentToString($tgtArr->getFileName(), $content));
 
             if (false === $current->save()) {
                 throw new FilesException($this->getLang()->flCannotSaveFile($path));
@@ -104,7 +100,7 @@ class ProcessFile implements IProcessFiles
         try {
             $dstRec = $this->getEntry($dest);
             if ($dstRec) {
-                throw new FilesException($this->getLang()->flCannotCopyFile($src, $dst));
+                return false;
             }
 
             return $this->saveFile($dest, $this->readFile($source));
@@ -126,12 +122,12 @@ class ProcessFile implements IProcessFiles
 
             $dst = $this->getEntry($ptDst->getArrayDirectory());
             if (!$dst) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($ptDst->getArrayDirectory())));
+                return false;
             }
 
             $tgt = $this->getEntry([$ptDst->getFileName()], $dst);
             if ($tgt) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($dest)));
+                return false;
             }
 
             $src->__set($this->getTranslation()->getCurrentKey(), $ptDst->getFileName());

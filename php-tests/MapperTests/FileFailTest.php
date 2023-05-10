@@ -139,8 +139,7 @@ class FileFailTest extends AStorageTest
         $this->dataRefill();
 
         $lib = $this->getFileLib();
-        $this->expectException(FilesException::class);
-        $lib->copyFile(['dummy2.txt'], ['dummy1.txt']);
+        $this->assertFalse($lib->copyFile(['dummy2.txt'], ['dummy1.txt']));
     }
 
     /**
@@ -196,8 +195,7 @@ class FileFailTest extends AStorageTest
         $this->dataRefill();
 
         $lib = $this->getFileLib();
-        $this->expectException(FilesException::class);
-        $lib->moveFile(['sub', 'dummy3.txt'], ['whatabout', 'other2.txt']);
+        $this->assertFalse($lib->moveFile(['sub', 'dummy3.txt'], ['whatabout', 'other2.txt']));
     }
 
     /**
@@ -215,8 +213,7 @@ class FileFailTest extends AStorageTest
         $this->dataRefill();
 
         $lib = $this->getFileLib();
-        $this->expectException(FilesException::class);
-        $lib->moveFile(['sub', 'dummy3.txt'], ['other2.txt']);
+        $this->assertFalse($lib->moveFile(['sub', 'dummy3.txt'], ['other2.txt']));
     }
 
     /**

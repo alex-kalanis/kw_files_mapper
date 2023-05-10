@@ -99,6 +99,15 @@ abstract class AStorageTest extends CommonTestClass
         $this->assertEquals(12, $this->database->rowCount());
     }
 
+    /**
+     * @throws MapperException
+     */
+    protected function dataClear(): void
+    {
+        $this->assertTrue($this->database->exec($this->dropTable(), []));
+        $this->assertTrue($this->database->exec($this->basicTable(), []));
+    }
+
     protected function dropTable(): string
     {
         return 'DROP TABLE IF EXISTS "my_local_data"';
@@ -107,7 +116,7 @@ abstract class AStorageTest extends CommonTestClass
     protected function basicTable(): string
     {
         return 'CREATE TABLE IF NOT EXISTS "my_local_data" (
-  "md_id" INTEGER PRIMARY KEY,
+  "md_id" INTEGER PRIMARY KEY AUTOINCREMENT,
   "md_parent" INTEGER NULL,
   "md_name" TEXT NULL,
   "md_content" TEXT NULL,
