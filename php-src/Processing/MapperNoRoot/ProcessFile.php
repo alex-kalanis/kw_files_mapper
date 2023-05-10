@@ -1,6 +1,6 @@
 <?php
 
-namespace kalanis\kw_files_mapper\Processing\Mapper;
+namespace kalanis\kw_files_mapper\Processing\MapperNoRoot;
 
 
 use kalanis\kw_files\FilesException;
@@ -16,7 +16,7 @@ use kalanis\kw_paths\Stuff;
 
 /**
  * Class ProcessFile
- * @package kalanis\kw_files_mapper\Processing\Mapper
+ * @package kalanis\kw_files_mapper\Processing\MapperNoRoot
  * Process files in many ways
  */
 class ProcessFile implements IProcessFiles
@@ -125,9 +125,6 @@ class ProcessFile implements IProcessFiles
             }
 
             $dst = $this->getEntry($ptDst->getArrayDirectory());
-            if (!$dst) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($ptDst->getArrayDirectory())));
-            }
 
             $tgt = $this->getEntry([$ptDst->getFileName()], $dst);
             if ($tgt) {
@@ -135,7 +132,10 @@ class ProcessFile implements IProcessFiles
             }
 
             $src->__set($this->getTranslation()->getCurrentKey(), $ptDst->getFileName());
-            $src->__set($this->getTranslation()->getParentKey(), $dst->__get($this->getTranslation()->getPrimaryKey()));
+            $src->__set(
+                $this->getTranslation()->getParentKey(),
+                $dst ? $dst->__get($this->getTranslation()->getPrimaryKey()) : null
+            );
             return $src->save();
 
         } catch (MapperException $ex) {

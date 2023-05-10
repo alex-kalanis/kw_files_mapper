@@ -1,6 +1,6 @@
 <?php
 
-namespace MapperTests;
+namespace MapperNoRootTests;
 
 
 use kalanis\kw_files\FilesException;

@@ -1,6 +1,6 @@
 <?php
 
-namespace kalanis\kw_files_mapper\Processing\Mapper;
+namespace kalanis\kw_files_mapper\Processing\MapperNoRoot;
 
 
 use kalanis\kw_files\FilesException;
@@ -14,7 +14,7 @@ use kalanis\kw_mapper\Records\ARecord;
 
 /**
  * Class ProcessNode
- * @package kalanis\kw_files_mapper\Processing\Mapper
+ * @package kalanis\kw_files_mapper\Processing\MapperNoRoot
  * Process nodes in basic ways
  */
 class ProcessNode implements IProcessNodes
@@ -34,9 +34,6 @@ class ProcessNode implements IProcessNodes
 
     public function exists(array $entry): bool
     {
-        if (empty($entry)) {
-            return true;
-        }
         try {
             return !is_null($this->getEntry($entry));
         } catch (MapperException $ex) {
@@ -56,9 +53,6 @@ class ProcessNode implements IProcessNodes
 
     public function isDir(array $entry): bool
     {
-        if (empty($entry)) {
-            return true;
-        }
         try {
             $entry = $this->getEntry($entry);
             if (is_null($entry)) {
@@ -72,9 +66,6 @@ class ProcessNode implements IProcessNodes
 
     public function isFile(array $entry): bool
     {
-        if (empty($entry)) {
-            return false;
-        }
         try {
             $entry = $this->getEntry($entry);
             if (is_null($entry)) {

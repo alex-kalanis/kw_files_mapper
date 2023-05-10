@@ -1,11 +1,11 @@
 <?php
 
-namespace kalanis\kw_files_mapper\Processing\Mapper\Process;
+namespace kalanis\kw_files_mapper\Support\Process;
 
 
 /**
  * Class Translate
- * @package kalanis\kw_files_mapper\Processing\Mapper\Process
+ * @package kalanis\kw_files_mapper\Support\Process
  * Translate keys which represents the column names
  * When it contains null then the column does not exists and cannot be used
  */

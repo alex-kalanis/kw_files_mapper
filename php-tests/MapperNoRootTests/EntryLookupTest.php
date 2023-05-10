@@ -1,11 +1,11 @@
 <?php
 
-namespace MapperTests;
+namespace MapperNoRootTests;
 
 
 use kalanis\kw_files\Interfaces\IFLTranslations;
 use kalanis\kw_files\Traits\TLang;
-use kalanis\kw_files_mapper\Processing\Mapper\TEntryLookup;
+use kalanis\kw_files_mapper\Processing\MapperNoRoot\TEntryLookup;
 use kalanis\kw_files_mapper\Support\Process;
 use kalanis\kw_mapper\MapperException;
 use kalanis\kw_mapper\Records\ARecord;
@@ -26,7 +26,7 @@ class EntryLookupTest extends AStorageTest
         $this->dataRefill();
 
         $lib = $this->getLookupLib();
-        $this->assertNotEmpty($lib->look([]));
+        $this->assertEmpty($lib->look([]));
         $this->assertNotEmpty($lib->look(['sub']));
         $this->assertNotEmpty($lib->look(['next_one', 'sub_one']));
         $this->assertEmpty($lib->look(['unknown']));

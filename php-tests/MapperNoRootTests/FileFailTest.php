@@ -1,6 +1,6 @@
 <?php
 
-namespace MapperTests;
+namespace MapperNoRootTests;
 
 
 use kalanis\kw_files\FilesException;
@@ -8,27 +8,8 @@ use kalanis\kw_mapper\MapperException;
 use kalanis\kw_paths\PathsException;
 
 
-class DirFailTest extends AStorageTest
+class FileFailTest extends AStorageTest
 {
-    /**
-     * @throws FilesException
-     * @throws MapperException
-     * @throws PathsException
-     */
-    public function testCreate(): void
-    {
-        if ($this->skipIt) {
-            $this->markTestSkipped('Skipped by config');
-            return;
-        }
-
-        $this->dataRefill();
-
-        $lib = $this->getDirFailLib();
-        $this->expectException(FilesException::class);
-        $lib->createDir(['another'], false);
-    }
-
     /**
      * @throws FilesException
      * @throws MapperException
@@ -43,9 +24,85 @@ class DirFailTest extends AStorageTest
 
         $this->dataRefill();
 
-        $lib = $this->getDirFailLib();
+        $lib = $this->getFileFailLib();
         $this->expectException(FilesException::class);
-        $lib->readDir([''], false, true);
+        $lib->readFile(['dummy2.txt']);
+    }
+
+    /**
+     * @throws FilesException
+     * @throws MapperException
+     * @throws PathsException
+     */
+    public function testSave(): void
+    {
+        if ($this->skipIt) {
+            $this->markTestSkipped('Skipped by config');
+            return;
+        }
+
+        $this->dataRefill();
+
+        $lib = $this->getFileFailLib();
+        $this->expectException(FilesException::class);
+        $lib->saveFile(['extra.txt'], 'qwertzuiopasdfghjklyxcvbnm0123456789');
+    }
+
+    /**
+     * @throws FilesException
+     * @throws MapperException
+     * @throws PathsException
+     */
+    public function testSave2(): void
+    {
+        if ($this->skipIt) {
+            $this->markTestSkipped('Skipped by config');
+            return;
+        }
+
+        $this->dataRefill();
+
+        $lib = $this->getFileFailLib();
+        $this->expectException(FilesException::class);
+        $lib->saveFile([], 'qwertzuiopasdfghjklyxcvbnm0123456789');
+    }
+
+    /**
+     * @throws FilesException
+     * @throws MapperException
+     * @throws PathsException
+     */
+    public function testSave3(): void
+    {
+        if ($this->skipIt) {
+            $this->markTestSkipped('Skipped by config');
+            return;
+        }
+
+        $this->dataRefill();
+
+        $lib = $this->getFileLib();
+        $this->expectException(FilesException::class);
+        $lib->saveFile(['not existent', 'directory', 'with file'], 'qwertzuiopasdfghjklyxcvbnm0123456789');
+    }
+
+    /**
+     * @throws FilesException
+     * @throws MapperException
+     * @throws PathsException
+     */
+    public function testSave4(): void
+    {
+        if ($this->skipIt) {
+            $this->markTestSkipped('Skipped by config');
+            return;
+        }
+
+        $this->dataRefill();
+
+        $lib = $this->getFileFailRecLib();
+        $this->expectException(FilesException::class);
+        $lib->saveFile(['possible file'], 'qwertzuiopasdfghjklyxcvbnm0123456789');
     }
 
     /**
@@ -62,47 +119,9 @@ class DirFailTest extends AStorageTest
 
         $this->dataRefill();
 
-        $lib = $this->getDirFailLib();
+        $lib = $this->getFileFailLib();
         $this->expectException(FilesException::class);
-        $lib->copyDir(['next_one'], ['more']);
-    }
-
-    /**
-     * @throws FilesException
-     * @throws MapperException
-     * @throws PathsException
-     */
-    public function testCopyUnknown(): void
-    {
-        if ($this->skipIt) {
-            $this->markTestSkipped('Skipped by config');
-            return;
-        }
-
-        $this->dataRefill();
-
-        $lib = $this->getDirLib();
-        $this->expectException(FilesException::class);
-        $lib->copyDir(['not source'], ['extra2']);
-    }
-
-    /**
-     * @throws FilesException
-     * @throws MapperException
-     * @throws PathsException
-     */
-    public function testCopyToUnknownDir(): void
-    {
-        if ($this->skipIt) {
-            $this->markTestSkipped('Skipped by config');
-            return;
-        }
-
-        $this->dataRefill();
-
-        $lib = $this->getDirLib();
-        $this->expectException(FilesException::class);
-        $lib->copyDir(['next_one', 'sub_one'], ['unknown', 'last_one']);
+        $lib->copyFile(['dummy2.txt'], ['extra1.txt']);
     }
 
     /**
@@ -119,28 +138,9 @@ class DirFailTest extends AStorageTest
 
         $this->dataRefill();
 
-        $lib = $this->getDirLib();
+        $lib = $this->getFileLib();
         $this->expectException(FilesException::class);
-        $lib->copyDir(['next_one', 'sub_one'], ['last_one']);
-    }
-
-    /**
-     * @throws FilesException
-     * @throws MapperException
-     * @throws PathsException
-     */
-    public function testCopyToSub(): void
-    {
-        if ($this->skipIt) {
-            $this->markTestSkipped('Skipped by config');
-            return;
-        }
-
-        $this->dataRefill();
-
-        $lib = $this->getDirLib();
-        $this->expectException(FilesException::class);
-        $lib->copyDir(['next_one', 'sub_one'], ['next_one', 'sub_one', 'deeper']);
+        $lib->copyFile(['dummy2.txt'], ['dummy1.txt']);
     }
 
     /**
@@ -157,9 +157,9 @@ class DirFailTest extends AStorageTest
 
         $this->dataRefill();
 
-        $lib = $this->getDirFailLib();
+        $lib = $this->getFileFailLib();
         $this->expectException(FilesException::class);
-        $lib->moveDir(['more'], ['another']);
+        $lib->moveFile(['extra1.txt'], ['extra2.txt']);
     }
 
     /**
@@ -176,9 +176,9 @@ class DirFailTest extends AStorageTest
 
         $this->dataRefill();
 
-        $lib = $this->getDirLib();
+        $lib = $this->getFileLib();
         $this->expectException(FilesException::class);
-        $lib->moveDir(['not source'], ['extra2']);
+        $lib->moveFile(['not source.txt'], ['extra2.txt']);
     }
 
     /**
@@ -195,9 +195,9 @@ class DirFailTest extends AStorageTest
 
         $this->dataRefill();
 
-        $lib = $this->getDirLib();
+        $lib = $this->getFileLib();
         $this->expectException(FilesException::class);
-        $lib->moveDir(['next_one', 'sub_one'], ['unknown', 'last_one']);
+        $lib->moveFile(['sub', 'dummy3.txt'], ['whatabout', 'other2.txt']);
     }
 
     /**
@@ -214,28 +214,9 @@ class DirFailTest extends AStorageTest
 
         $this->dataRefill();
 
-        $lib = $this->getDirLib();
+        $lib = $this->getFileLib();
         $this->expectException(FilesException::class);
-        $lib->moveDir(['next_one', 'sub_one'], ['last_one']);
-    }
-
-    /**
-     * @throws FilesException
-     * @throws MapperException
-     * @throws PathsException
-     */
-    public function testMoveToSub(): void
-    {
-        if ($this->skipIt) {
-            $this->markTestSkipped('Skipped by config');
-            return;
-        }
-
-        $this->dataRefill();
-
-        $lib = $this->getDirLib();
-        $this->expectException(FilesException::class);
-        $lib->moveDir(['next_one', 'sub_one'], ['next_one', 'sub_one', 'deeper']);
+        $lib->moveFile(['sub', 'dummy3.txt'], ['other2.txt']);
     }
 
     /**
@@ -252,44 +233,9 @@ class DirFailTest extends AStorageTest
 
         $this->dataRefill();
 
-        $lib = $this->getDirFailLib();
+        $lib = $this->getFileFailLib();
         $this->expectException(FilesException::class);
-        $lib->deleteDir(['another'], true);
-    }
-
-    /**
-     * @throws FilesException
-     * @throws MapperException
-     * @throws PathsException
-     */
-    public function testDeleteFile(): void
-    {
-        if ($this->skipIt) {
-            $this->markTestSkipped('Skipped by config');
-            return;
-        }
-
-        $this->dataRefill();
-
-        $lib = $this->getDirLib();
-        $this->assertFalse($lib->deleteDir(['sub', 'dummy3.txt']));
-    }
-
-    /**
-     * @throws FilesException
-     * @throws MapperException
-     * @throws PathsException
-     */
-    public function testDeleteNonEmpty(): void
-    {
-        if ($this->skipIt) {
-            $this->markTestSkipped('Skipped by config');
-            return;
-        }
-
-        $this->dataRefill();
-
-        $lib = $this->getDirLib();
-        $this->assertFalse($lib->deleteDir(['next_one']));
+        $lib->deleteFile(['extra2.txt']);
     }
 }
+

@@ -8,6 +8,7 @@ use kalanis\kw_files\FilesException;
 use kalanis\kw_files\Processing as original_processing;
 use kalanis\kw_files\Traits\TLang;
 use kalanis\kw_files_mapper\Processing;
+use kalanis\kw_files_mapper\Support\Process;
 use kalanis\kw_mapper\Records\ARecord;
 use kalanis\kw_paths\PathsException;
 use kalanis\kw_storage\Interfaces\IStorage;
@@ -60,7 +61,7 @@ class Factory extends original_access\Factory
                 );
 
             } elseif (isset($param['source']) && is_object($param['source']) && ($param['source'] instanceof ARecord)) {
-                $trans = (isset($param['translate']) && is_object($param['translate']) && ($param['translate'] instanceof Processing\Mapper\Process\Translate))
+                $trans = (isset($param['translate']) && is_object($param['translate']) && ($param['translate'] instanceof Process\Translate))
                     ? $param['translate']
                     : null
                 ;

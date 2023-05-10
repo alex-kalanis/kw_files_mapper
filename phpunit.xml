@@ -54,6 +54,7 @@
     <testsuites>
         <testsuite name="ALL">
             <directory>php-tests/MapperTests</directory>
+            <directory>php-tests/MapperNoRootTests</directory>
             <directory>php-tests/AccessTests</directory>
         </testsuite>
     </testsuites>

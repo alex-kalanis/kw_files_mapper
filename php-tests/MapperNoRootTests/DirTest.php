@@ -1,13 +1,13 @@
 <?php
 
-namespace MapperTests;
+namespace MapperNoRootTests;
 
 
 use kalanis\kw_files\FilesException;
 use kalanis\kw_files\Interfaces\IProcessDirs;
 use kalanis\kw_files\Interfaces\ITypes;
 use kalanis\kw_files\Node;
-use kalanis\kw_files_mapper\Processing\Mapper;
+use kalanis\kw_files_mapper\Processing\MapperNoRoot;
 use kalanis\kw_files_mapper\Support\Process;
 use kalanis\kw_mapper\MapperException;
 use kalanis\kw_paths\PathsException;
@@ -246,6 +246,6 @@ class DirTest extends AStorageTest
      */
     protected function getLib(): IProcessDirs
     {
-        return new Mapper\ProcessDir(new SQLiteTestRecord(), new Process\Translate());
+        return new MapperNoRoot\ProcessDir(new SQLiteTestRecord(), new Process\Translate());
     }
 }

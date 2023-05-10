@@ -1,6 +1,6 @@
 <?php
 
-namespace kalanis\kw_files_mapper\Processing\Mapper;
+namespace kalanis\kw_files_mapper\Processing\MapperNoRoot;
 
 
 use kalanis\kw_files_mapper\Support\TTranslate;
@@ -11,7 +11,7 @@ use kalanis\kw_mapper\Search\Search;
 
 /**
  * Trait TEntryLookup
- * @package kalanis\kw_files_mapper\Processing\Mapper
+ * @package kalanis\kw_files_mapper\Processing\MapperNoRoot
  * Get entry
  */
 trait TEntryLookup
@@ -27,18 +27,8 @@ trait TEntryLookup
     protected function getEntry(array $path, ?ARecord $parentNode = null): ?ARecord
     {
         if (empty($path)) {
-            $search = new Search($this->getLookupRecord());
-            $search->null($this->getTranslation()->getParentKey());
-            $all = $search->getResults();
-
-            if (empty($all)) {
-                // no root node?!?!
-                // @codeCoverageIgnoreStart
-                return null;
-            }
-            // @codeCoverageIgnoreEnd
-
-            return reset($all);
+            // no root node
+            return null;
         }
 
         foreach ($path as $levelKey) {

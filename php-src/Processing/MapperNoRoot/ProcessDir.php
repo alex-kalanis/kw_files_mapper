@@ -1,6 +1,6 @@
 <?php
 
-namespace kalanis\kw_files_mapper\Processing\Mapper;
+namespace kalanis\kw_files_mapper\Processing\MapperNoRoot;
 
 
 use kalanis\kw_files\FilesException;
@@ -22,7 +22,7 @@ use kalanis\kw_paths\Stuff;
 
 /**
  * Class ProcessDir
- * @package kalanis\kw_files_mapper\Processing\Mapper
+ * @package kalanis\kw_files_mapper\Processing\MapperNoRoot
  * Process dirs in basic ways
  */
 class ProcessDir implements IProcessDirs
@@ -91,11 +91,9 @@ class ProcessDir implements IProcessDirs
                 strval($parentNode->__get($this->getTranslation()->getPrimaryKey()))
             );
         } else {
-            // no root node?!
-            // @codeCoverageIgnoreStart
+            // no root node?
             $search->null($this->getTranslation()->getParentKey());
         }
-        // @codeCoverageIgnoreEnd
         return $search->getResults();
     }
 
@@ -131,14 +129,8 @@ class ProcessDir implements IProcessDirs
         try {
             $entryPath = Stuff::arrayToPath($entry);
             $node = $this->getEntry($entry);
-            if (is_null($node)) {
-                // no root node?!
-                // @codeCoverageIgnoreStart
-                throw new FilesException($this->getLang()->flCannotReadDir($entryPath));
-            }
-            // @codeCoverageIgnoreEnd
 
-            if (!$this->isDir($node)) {
+            if (!is_null($node) && !$this->isDir($node)) {
                 throw new FilesException($this->getLang()->flCannotReadDir($entryPath));
             }
             /** @var array<string, Node> */
@@ -158,20 +150,24 @@ class ProcessDir implements IProcessDirs
     }
 
     /**
-     * @param ARecord $node
+     * @param ARecord|null $node
      * @param bool $loadRecursive
      * @param bool $wantSize
      * @param string[] $upper
      * @throws MapperException
      * @return Node[]
      */
-    protected function subNodes(ARecord $node, bool $loadRecursive = false, bool $wantSize = false, array $upper = []): array
+    protected function subNodes(?ARecord $node, bool $loadRecursive = false, bool $wantSize = false, array $upper = []): array
     {
         $search = new Search($this->getLookupRecord());
-        $search->exact(
-            $this->getTranslation()->getParentKey(),
-            strval($node->__get($this->getTranslation()->getPrimaryKey()))
-        );
+        if ($node) {
+            $search->exact(
+                $this->getTranslation()->getParentKey(),
+                strval($node->__get($this->getTranslation()->getPrimaryKey()))
+            );
+        } else {
+            $search->null($this->getTranslation()->getParentKey());
+        }
 
         /** @var Node[] $files */
         $files = [];
@@ -219,9 +215,6 @@ class ProcessDir implements IProcessDirs
             }
 
             $dst = $this->getEntry($ptDst->getArrayDirectory());
-            if (!$dst) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($ptDst->getArrayDirectory())));
-            }
 
             $tgt = $this->getEntry([$ptDst->getFileName()], $dst);
             if ($tgt) {
@@ -230,8 +223,8 @@ class ProcessDir implements IProcessDirs
 
             $new = $this->getLookupRecord();
             $new->__set($this->getTranslation()->getCurrentKey(), $ptDst->getFileName());
-            $new->__set($this->getTranslation()->getParentKey(), $dst->__get($this->getTranslation()->getPrimaryKey()));
-            $new->__set($this->getTranslation()->getContentKey(), $dst->__get($this->getTranslation()->getContentKey()));
+            $new->__set($this->getTranslation()->getParentKey(), $dst ? $dst->__get($this->getTranslation()->getPrimaryKey()) : null);
+            $new->__set($this->getTranslation()->getContentKey(), IProcessNodes::STORAGE_NODE_KEY);
             $new->save();
 
             return $this->copyCycle($src, $new);
@@ -263,9 +256,6 @@ class ProcessDir implements IProcessDirs
             }
 
             $dst = $this->getEntry($ptDst->getArrayDirectory());
-            if (!$dst) {
-                throw new FilesException($this->getLang()->flCannotProcessNode(Stuff::arrayToPath($ptDst->getArrayDirectory())));
-            }
 
             $tgt = $this->getEntry([$ptDst->getFileName()], $dst);
             if ($tgt) {
@@ -273,7 +263,7 @@ class ProcessDir implements IProcessDirs
             }
 
             $src->__set($this->getTranslation()->getCurrentKey(), $ptDst->getFileName());
-            $src->__set($this->getTranslation()->getParentKey(), $dst->__get($this->getTranslation()->getPrimaryKey()));
+            $src->__set($this->getTranslation()->getParentKey(), $dst ? $dst->__get($this->getTranslation()->getPrimaryKey()) : null);
             return $src->save();
 
         } catch (MapperException $ex) {

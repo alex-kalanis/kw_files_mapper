@@ -9,6 +9,7 @@ use kalanis\kw_files\Interfaces\IProcessNodes;
 use kalanis\kw_files_mapper\Processing;
 use kalanis\kw_files_mapper\Access\Factory;
 use kalanis\kw_files\FilesException;
+use kalanis\kw_files_mapper\Support\Process;
 use kalanis\kw_mapper\Interfaces\IEntryType;
 use kalanis\kw_mapper\MapperException;
 use kalanis\kw_mapper\Mappers;
@@ -130,7 +131,7 @@ class XSrcMapper extends Mappers\APreset
 }
 
 
-class XTr extends Processing\Mapper\Process\Translate
+class XTr extends Process\Translate
 {
     /** @var string */
     protected $current = 'name';
