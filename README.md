@@ -9,8 +9,6 @@
 [![Code Coverage](https://scrutinizer-ci.com/g/alex-kalanis/kw_files_mapper/badges/coverage.png?b=master&v=1)](https://scrutinizer-ci.com/g/alex-kalanis/kw_files_mapper/?branch=master)
 
 Manage access to storage with emulation of tree structure in database as source.
-Necessary for key-value storages. Also can behave the correct way when storing
-in classical filesystems.
 
 ## PHP Installation
 
@@ -34,15 +32,8 @@ familiar with composer)
 
 3.) Connect the correct processing libraries from "kalanis\kw_files_mapper\Processing" into your app. The correct one depends on your storage.
 
-4.) Extend your libraries by interfaces inside the package.
+4.) Extend your libraries by interfaces inside the package "kw_files".
 
-5.) Just call setting and render
+5.) Just call classes from package as instances of interfaces
 
-
-### Changes
-
-- v2 has difference in interface and class tree building for free name lookup
-
-
-Notes to self: - all entries starts internally with the separators (usually slashes). It is not necessary
-and sometimes counter-productive to add them when setting the starting dir. It behaves like a prefix.
+6.) Let the system do its things
