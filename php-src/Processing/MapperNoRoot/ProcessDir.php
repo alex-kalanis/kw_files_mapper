@@ -45,7 +45,6 @@ class ProcessDir implements IProcessDirs
     public function createDir(array $entry, bool $deep = false): bool
     {
         try {
-            /** @var ARecord|null $parentNode */
             $parentNode = $this->getEntry([]);
 
             $maxPos = count($entry) - 1;
@@ -69,7 +68,7 @@ class ProcessDir implements IProcessDirs
                 }
             }
 
-            return $this->isDir($parentNode);
+            return $parentNode ? $this->isDir($parentNode) : false;
         } catch (MapperException $ex) {
             throw new FilesException($this->getLang()->flCannotCreateDir(Stuff::arrayToPath($entry)), $ex->getCode(), $ex);
         }
@@ -221,7 +220,9 @@ class ProcessDir implements IProcessDirs
 
             $new = $this->getLookupRecord();
             $new->__set($this->getTranslation()->getCurrentKey(), $ptDst->getFileName());
-            $new->__set($this->getTranslation()->getParentKey(), $dst ? $dst->__get($this->getTranslation()->getPrimaryKey()) : null);
+            if ($dst) {
+                $new->__set($this->getTranslation()->getParentKey(), $dst->__get($this->getTranslation()->getPrimaryKey()));
+            }
             $new->__set($this->getTranslation()->getContentKey(), IProcessNodes::STORAGE_NODE_KEY);
             $new->save();
 
@@ -297,10 +298,10 @@ class ProcessDir implements IProcessDirs
      */
     protected function copyCycle(ARecord $source, ARecord $dest): bool
     {
-        $stat = true;
+        $stat = 0;
 
         $search = new Search($this->getLookupRecord());
-        $search->exact($this->getTranslation()->getParentKey(), $source->__get($this->getTranslation()->getPrimaryKey()));
+        $search->exact($this->getTranslation()->getParentKey(), strval($source->__get($this->getTranslation()->getPrimaryKey())));
         $src = $search->getResults();
 
         foreach ($src as $item) {
@@ -308,14 +309,14 @@ class ProcessDir implements IProcessDirs
             $newNode->__set($this->getTranslation()->getCurrentKey(), $item->__get($this->getTranslation()->getCurrentKey()));
             $newNode->__set($this->getTranslation()->getParentKey(), $dest->__get($this->getTranslation()->getPrimaryKey()));
             $newNode->__set($this->getTranslation()->getContentKey(), $item->__get($this->getTranslation()->getContentKey()));
-            $stat &= $newNode->save();
+            $stat += intval(!$newNode->save());
 
             if ($this->isDir($newNode)) {
-                $stat &= $this->copyCycle($item, $newNode);
+                $stat += intval(!$this->copyCycle($item, $newNode));
             }
         }
 
-        return $stat;
+        return !boolval($stat);
     }
 
     /**

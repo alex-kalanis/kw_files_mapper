@@ -15,7 +15,7 @@ Manage access to storage with emulation of tree structure in database as source.
 ```
 {
     "require": {
-        "alex-kalanis/kw_files_mapper": "3.0"
+        "alex-kalanis/kw_files_mapper": "1.0"
     }
 }
 ```

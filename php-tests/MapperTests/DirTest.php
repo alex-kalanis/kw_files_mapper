@@ -264,6 +264,7 @@ class DirTest extends AStorageTest
         $lib = $this->getLib();
         $this->assertTrue($lib->copyDir(['next_one'], ['more']));
         $this->assertTrue($lib->moveDir(['more'], ['another']));
+        $this->assertTrue($lib->copyDir(['next_one', 'sub_one'], ['another', 'less than']));
         $this->assertTrue($lib->deleteDir(['another'], true));
         $this->assertFalse($lib->deleteDir(['another']));
     }
