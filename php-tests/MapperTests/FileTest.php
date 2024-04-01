@@ -103,10 +103,12 @@ class FileTest extends AStorageTest
         $this->dataRefill();
 
         $lib = $this->getFileLib();
-        $handle = fopen('php://memory', 'r+');
-        fwrite($handle, 'qwertzuiopasdfghjklyxcvbnm0123456789');
-        $this->assertTrue($lib->saveFile(['sub', 'foul.txt'], $handle));
+        $this->assertTrue($lib->saveFile(['sub', 'foul.txt'], 'qwertzuiopasdfghjklyxcvbnm0123456789'));
         $this->assertEquals('qwertzuiopasdfghjklyxcvbnm0123456789', $lib->readFile(['sub', 'foul.txt']));
+        $this->assertTrue($lib->saveFile(['sub', 'foul.txt'], 'qwertzuiopasdfghjklyxcvbnm0123456789', 3));
+        $this->assertEquals(chr(0) . chr(0) . chr(0) . 'qwertzuiopasdfghjklyxcvbnm0123456789', $lib->readFile(['sub', 'foul.txt']));
+        $this->assertTrue($lib->saveFile(['sub', 'foul.txt'], 'qwertzuiopasdfghjklyxcvbnm0123456789', 42, FILE_APPEND));
+        $this->assertEquals(chr(0) . chr(0) . chr(0) . 'qwertzuiopasdfghjklyxcvbnm0123456789' . chr(0) . chr(0) . chr(0) . 'qwertzuiopasdfghjklyxcvbnm0123456789', $lib->readFile(['sub', 'foul.txt']));
     }
 
     /**

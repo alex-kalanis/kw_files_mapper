@@ -4,31 +4,22 @@ namespace MapperTests;
 
 
 use CommonTestClass;
-use kalanis\kw_files\Interfaces\IProcessDirs;
-use kalanis\kw_files\Interfaces\IProcessFiles;
-use kalanis\kw_files\Interfaces\IProcessNodes;
-use kalanis\kw_files_mapper\Processing\Mapper\ProcessDir;
-use kalanis\kw_files_mapper\Processing\Mapper\ProcessFile;
-use kalanis\kw_files_mapper\Processing\Mapper\ProcessNode;
+use kalanis\kw_files\Interfaces;
+use kalanis\kw_files_mapper\Processing\Mapper;
 use kalanis\kw_mapper\Interfaces\IDriverSources;
 use kalanis\kw_mapper\Interfaces\IEntryType;
 use kalanis\kw_mapper\MapperException;
 use kalanis\kw_mapper\Mappers\Database\ADatabase;
 use kalanis\kw_mapper\Records\ARecord;
 use kalanis\kw_mapper\Records\ASimpleRecord;
-use kalanis\kw_mapper\Storage\Database\Config;
-use kalanis\kw_mapper\Storage\Database\ConfigStorage;
-use kalanis\kw_mapper\Storage\Database\DatabaseSingleton;
-use kalanis\kw_mapper\Storage\Database\PDO\SQLite;
+use kalanis\kw_mapper\Storage\Database;
 use PDO;
 
 
 abstract class AStorageTest extends CommonTestClass
 {
-    /** @var null|SQLite */
-    protected $database = null;
-    /** @var bool */
-    protected $skipIt = false;
+    protected ?Database\PDO\SQLite $database = null;
+    protected bool $skipIt = false;
 
     /**
      * @throws MapperException
@@ -38,7 +29,7 @@ abstract class AStorageTest extends CommonTestClass
         $skipIt = getenv('SQSKIP');
         $this->skipIt = false !== $skipIt && boolval(intval(strval($skipIt)));
 
-        $conf = Config::init()->setTarget(
+        $conf = Database\Config::init()->setTarget(
             IDriverSources::TYPE_PDO_SQLITE,
             'test_sqlite_local',
             ':memory:',
@@ -48,42 +39,57 @@ abstract class AStorageTest extends CommonTestClass
             ''
         );
         $conf->setParams(86000, true);
-        ConfigStorage::getInstance()->addConfig($conf);
-        $this->database = DatabaseSingleton::getInstance()->getDatabase($conf);
+        Database\ConfigStorage::getInstance()->addConfig($conf);
+        $this->database = Database\DatabaseSingleton::getInstance()->getDatabase($conf);
         $this->database->addAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     }
 
-    protected function getNodeLib(): IProcessNodes
+    protected function getNodeLib(): Interfaces\IProcessNodes
     {
-        return new ProcessNode(new SQLiteTestRecord());
+        return new Mapper\ProcessNode(new SQLiteTestRecord());
     }
 
-    protected function getNodeFailLib(): IProcessNodes
+    protected function getNodeFailLib(): Interfaces\IProcessNodes
     {
         return new XFailProcessNode(new SQLiteTestRecord());
     }
 
-    protected function getFileLib(): IProcessFiles
+    protected function getFileLib(): Interfaces\IProcessFiles
     {
-        return new ProcessFile(new SQLiteTestRecord());
+        return new Mapper\ProcessFile(new SQLiteTestRecord());
     }
 
-    protected function getFileFailLib(): IProcessFiles
+    protected function getFileFailLib(): Interfaces\IProcessFiles
     {
         return new XFailProcessFile(new SQLiteTestRecord());
     }
 
-    protected function getFileFailRecLib(): IProcessFiles
+    protected function getFileFailRecLib(): Interfaces\IProcessFiles
     {
-        return new ProcessFile(new XFailSaveRecord());
+        return new Mapper\ProcessFile(new XFailSaveRecord());
     }
 
-    protected function getDirLib(): IProcessDirs
+    protected function getStreamLib(): Interfaces\IProcessFileStreams
     {
-        return new ProcessDir(new SQLiteTestRecord());
+        return new Mapper\ProcessStream(new SQLiteTestRecord());
     }
 
-    protected function getDirFailLib(): IProcessDirs
+    protected function getStreamFailLib(): Interfaces\IProcessFileStreams
+    {
+        return new XFailProcessStream(new SQLiteTestRecord());
+    }
+
+    protected function getStreamFailRecLib(): Interfaces\IProcessFileStreams
+    {
+        return new Mapper\ProcessStream(new XFailSaveRecord());
+    }
+
+    protected function getDirLib(): Interfaces\IProcessDirs
+    {
+        return new Mapper\ProcessDir(new SQLiteTestRecord());
+    }
+
+    protected function getDirFailLib(): Interfaces\IProcessDirs
     {
         return new XFailProcessDir(new SQLiteTestRecord());
     }
@@ -129,15 +135,15 @@ abstract class AStorageTest extends CommonTestClass
     protected function fillTable(): string
     {
         return 'INSERT INTO "my_local_data" ("md_id", "md_parent", "md_name", "md_content", "md_created") VALUES
-( 1, null, "",           "' . IProcessNodes::STORAGE_NODE_KEY . '", null), -- /data/tree
--- ( 2,  1,   "data",       "' . IProcessNodes::STORAGE_NODE_KEY . '", 123456789),
--- ( 3,  2,   "tree",       "' . IProcessNodes::STORAGE_NODE_KEY . '", 123456789),
-( 4,  1,   "last_one",   "' . IProcessNodes::STORAGE_NODE_KEY . '", 123456789),
+( 1, null, "",           "' . Interfaces\IProcessNodes::STORAGE_NODE_KEY . '", null), -- /data/tree
+-- ( 2,  1,   "data",       "' . Interfaces\IProcessNodes::STORAGE_NODE_KEY . '", 123456789),
+-- ( 3,  2,   "tree",       "' . Interfaces\IProcessNodes::STORAGE_NODE_KEY . '", 123456789),
+( 4,  1,   "last_one",   "' . Interfaces\IProcessNodes::STORAGE_NODE_KEY . '", 123456789),
 ( 5,  4,   ".gitkeep",   "123456", 123456789),
-( 6,  1,   "next_one",   "' . IProcessNodes::STORAGE_NODE_KEY . '", 123456789),
-( 7,  6,   "sub_one",    "' . IProcessNodes::STORAGE_NODE_KEY . '", 123456789),
+( 6,  1,   "next_one",   "' . Interfaces\IProcessNodes::STORAGE_NODE_KEY . '", 123456789),
+( 7,  6,   "sub_one",    "' . Interfaces\IProcessNodes::STORAGE_NODE_KEY . '", 123456789),
 ( 8,  7,   ".gitkeep",   "789123", 123456789),
-( 9,  1,   "sub",        "' . IProcessNodes::STORAGE_NODE_KEY . '", 123456789),
+( 9,  1,   "sub",        "' . Interfaces\IProcessNodes::STORAGE_NODE_KEY . '", 123456789),
 (10,  9,   "dummy3.txt", "qwertzuiopasdfghjklyxcvbnm0123456789", 123456789),
 (11,  9,   "dummy4.txt", "qwertzuiopasdfghjklyxcvbnm0123456789", 123456789),
 (12,  1,   "dummy1.txt", "qwertzuiopasdfghjklyxcvbnm0123456789", 123456789),
@@ -150,7 +156,7 @@ abstract class AStorageTest extends CommonTestClass
     protected function fillTable2(): string
     {
         return 'INSERT INTO "my_local_data" ("md_id", "md_parent", "md_name", "md_content", "md_created") VALUES
-( 1, null, "",           "' . IProcessNodes::STORAGE_NODE_KEY . '", null) -- /data/tree
+( 1, null, "",           "' . Interfaces\IProcessNodes::STORAGE_NODE_KEY . '", null) -- /data/tree
 ';
     }
 }
@@ -215,7 +221,7 @@ class SQLiteFailSaveTestMapper extends SQLiteTestMapper
 }
 
 
-class XFailProcessDir extends ProcessDir
+class XFailProcessDir extends Mapper\ProcessDir
 {
     protected function getLookupRecord(): ARecord
     {
@@ -224,7 +230,7 @@ class XFailProcessDir extends ProcessDir
 }
 
 
-class XFailProcessFile extends ProcessFile
+class XFailProcessFile extends Mapper\ProcessFile
 {
     protected function getLookupRecord(): ARecord
     {
@@ -233,7 +239,16 @@ class XFailProcessFile extends ProcessFile
 }
 
 
-class XFailProcessNode extends ProcessNode
+class XFailProcessStream extends Mapper\ProcessStream
+{
+    protected function getLookupRecord(): ARecord
+    {
+        throw new MapperException('mock');
+    }
+}
+
+
+class XFailProcessNode extends Mapper\ProcessNode
 {
     protected function getLookupRecord(): ARecord
     {

@@ -64,14 +64,12 @@ class XLookup
     use TEntryLookup;
     use TLang;
 
-    /** @var ARecord */
-    protected $record = null;
-    /** @var Process\Translate */
-    protected $translate = null;
+    protected ARecord $record;
+    protected Process\Translate $translate;
 
     public function __construct(ARecord $record, ?Process\Translate $translate = null, ?IFLTranslations $lang = null)
     {
-        $this->setLang($lang);
+        $this->setFlLang($lang);
         $this->record = $record;
         $this->translate = $translate ?: new Process\Translate();
     }

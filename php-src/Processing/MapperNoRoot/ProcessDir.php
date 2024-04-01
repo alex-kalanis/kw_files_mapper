@@ -28,16 +28,15 @@ use kalanis\kw_paths\Stuff;
 class ProcessDir implements IProcessDirs
 {
     use TDir;
-    use TLang;
     use TEntryLookup;
+    use TLang;
     use TSubPart;
 
-    /** @var ARecord */
-    protected $record = null;
+    protected ARecord $record;
 
     public function __construct(ARecord $record, ?Process\Translate $translate = null, ?IFLTranslations $lang = null)
     {
-        $this->setLang($lang);
+        $this->setFlLang($lang);
         $this->record = $record;
         $this->setTranslation($translate);
     }
@@ -70,7 +69,7 @@ class ProcessDir implements IProcessDirs
 
             return $parentNode ? $this->isDir($parentNode) : false;
         } catch (MapperException $ex) {
-            throw new FilesException($this->getLang()->flCannotCreateDir(Stuff::arrayToPath($entry)), $ex->getCode(), $ex);
+            throw new FilesException($this->getFlLang()->flCannotCreateDir(Stuff::arrayToPath($entry)), $ex->getCode(), $ex);
         }
     }
 
@@ -126,12 +125,12 @@ class ProcessDir implements IProcessDirs
 
     public function readDir(array $entry, bool $loadRecursive = false, bool $wantSize = false): array
     {
+        $entryPath = Stuff::arrayToPath($entry);
         try {
-            $entryPath = Stuff::arrayToPath($entry);
             $node = $this->getEntry($entry);
 
             if (!is_null($node) && !$this->isDir($node)) {
-                throw new FilesException($this->getLang()->flCannotReadDir($entryPath));
+                throw new FilesException($this->getFlLang()->flCannotReadDir($entryPath));
             }
             /** @var array<string, Node> */
             $files = [];
@@ -145,7 +144,7 @@ class ProcessDir implements IProcessDirs
 
             return array_merge($files, $this->subNodes($node, $loadRecursive, $wantSize));
         } catch (MapperException $ex) {
-            throw new FilesException($this->getLang()->flCannotReadDir($entryPath), $ex->getCode(), $ex);
+            throw new FilesException($this->getFlLang()->flCannotReadDir($entryPath), $ex->getCode(), $ex);
         }
     }
 
@@ -229,7 +228,7 @@ class ProcessDir implements IProcessDirs
             return $this->copyCycle($src, $new);
 
         } catch (MapperException $ex) {
-            throw new FilesException($this->getLang()->flCannotCopyDir(
+            throw new FilesException($this->getFlLang()->flCannotCopyDir(
                 Stuff::arrayToPath($source),
                 Stuff::arrayToPath($dest)
             ), $ex->getCode(), $ex);
@@ -263,7 +262,7 @@ class ProcessDir implements IProcessDirs
             return $src->save();
 
         } catch (MapperException $ex) {
-            throw new FilesException($this->getLang()->flCannotMoveDir(
+            throw new FilesException($this->getFlLang()->flCannotMoveDir(
                 Stuff::arrayToPath($source),
                 Stuff::arrayToPath($dest)
             ), $ex->getCode(), $ex);
@@ -285,7 +284,7 @@ class ProcessDir implements IProcessDirs
                 return false;
             }
         } catch (MapperException $ex) {
-            throw new FilesException($this->getLang()->flCannotRemoveDir(Stuff::arrayToPath($entry)), $ex->getCode(), $ex);
+            throw new FilesException($this->getFlLang()->flCannotRemoveDir(Stuff::arrayToPath($entry)), $ex->getCode(), $ex);
         }
     }
 

@@ -6,6 +6,7 @@ namespace AccessTests;
 use CommonTestClass;
 use kalanis\kw_files\Access\CompositeAdapter;
 use kalanis\kw_files\Interfaces\IProcessNodes;
+use kalanis\kw_files\Processing as original_processing;
 use kalanis\kw_files_mapper\Processing;
 use kalanis\kw_files_mapper\Access\Factory;
 use kalanis\kw_files\FilesException;
@@ -37,13 +38,21 @@ class FactoryTest extends CommonTestClass
     public function passProvider(): array
     {
         $storage = new Storage(new DefaultKey(), new Memory());
+        $composite = new CompositeAdapter(
+            new original_processing\Volume\ProcessNode(),
+            new original_processing\Volume\ProcessDir(),
+            new original_processing\Volume\ProcessFile(),
+            new original_processing\Volume\ProcessFile()
+        );
         return [
             ['somewhere'],
             [__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'tree'],
             [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'tree']],
             [['source' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'tree']],
+            [$composite],
             [$storage],
             [new XSrc()],
+            [['source' => $composite]],
             [['source' => $storage]],
             [['source' => $storage, 'translate' => new XTr()]],
         ];
@@ -133,14 +142,9 @@ class XSrcMapper extends Mappers\APreset
 
 class XTr extends Process\Translate
 {
-    /** @var string */
-    protected $current = 'name';
-    /** @var string */
-    protected $parent = 'parentName';
-    /** @var string */
-    protected $primary = 'name';
-    /** @var string */
-    protected $content = 'content';
-    /** @var string|null */
-    protected $created = null;
+    protected string $current = 'name';
+    protected string $parent = 'parentName';
+    protected string $primary = 'name';
+    protected string $content = 'content';
+    protected ?string $created = null;
 }

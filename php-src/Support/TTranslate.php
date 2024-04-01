@@ -10,8 +10,7 @@ namespace kalanis\kw_files_mapper\Support;
  */
 trait TTranslate
 {
-    /** @var Process\Translate|null */
-    protected $translation = null;
+    protected ?Process\Translate $translation = null;
 
     public function setTranslation(?Process\Translate $translation = null): void
     {

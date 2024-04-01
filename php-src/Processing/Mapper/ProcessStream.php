@@ -5,8 +5,10 @@ namespace kalanis\kw_files_mapper\Processing\Mapper;
 
 use kalanis\kw_files\FilesException;
 use kalanis\kw_files\Interfaces\IFLTranslations;
-use kalanis\kw_files\Interfaces\IProcessFiles;
+use kalanis\kw_files\Interfaces\IProcessFileStreams;
 use kalanis\kw_files\Traits\TLang;
+use kalanis\kw_files\Traits\TToStream;
+use kalanis\kw_files\Traits\TToString;
 use kalanis\kw_files_mapper\Support\Process;
 use kalanis\kw_mapper\MapperException;
 use kalanis\kw_mapper\Records\ARecord;
@@ -15,14 +17,16 @@ use kalanis\kw_paths\Stuff;
 
 
 /**
- * Class ProcessFile
+ * Class ProcessStream
  * @package kalanis\kw_files_mapper\Processing\Mapper
  * Process files in many ways
  */
-class ProcessFile implements IProcessFiles
+class ProcessStream implements IProcessFileStreams
 {
     use TEntryLookup;
     use TLang;
+    use TToStream;
+    use TToString;
 
     protected ARecord $record;
 
@@ -33,29 +37,22 @@ class ProcessFile implements IProcessFiles
         $this->setTranslation($translate);
     }
 
-    public function readFile(array $entry, ?int $offset = null, ?int $length = null): string
+    public function readFileStream(array $entry)
     {
         try {
             $record = $this->getEntry($entry);
+            $path = Stuff::arrayToPath($entry);
             if (is_null($record)) {
-                throw new FilesException($this->getFlLang()->flCannotLoadFile(Stuff::arrayToPath($entry)));
+                throw new FilesException($this->getFlLang()->flCannotLoadFile($path));
             }
 
-            $content = $record->__get($this->getTranslation()->getContentKey());
-            // shit with substr... that needed undefined params was from some java dude?!
-            if (!is_null($length)) {
-                return strval(substr(strval($content), intval($offset), $length));
-            }
-            if (!is_null($offset)) {
-                return strval(substr(strval($content), $offset));
-            }
-            return strval($content);
+            return $this->toStream($path, $record->__get($this->getTranslation()->getContentKey()));
         } catch (MapperException $ex) {
             throw new FilesException($ex->getMessage(), $ex->getCode(), $ex);
         }
     }
 
-    public function saveFile(array $entry, string $content, ?int $offset = null, int $mode = 0): bool
+    public function saveFileStream(array $entry, $content, int $mode = 0): bool
     {
         $path = Stuff::arrayToPath($entry);
         try {
@@ -85,11 +82,7 @@ class ProcessFile implements IProcessFiles
                 }
             }
 
-            if (!is_null($offset)) {
-                $prepend = str_pad(strval(substr($prepend, 0, $offset)), $offset, chr(0));
-            }
-
-            $current->__set($this->getTranslation()->getContentKey(), $prepend . $content);
+            $current->__set($this->getTranslation()->getContentKey(), $prepend . $this->toString($path, $content));
 
             if (false === $current->save()) {
                 throw new FilesException($this->getFlLang()->flCannotSaveFile($path));
@@ -100,7 +93,7 @@ class ProcessFile implements IProcessFiles
         }
     }
 
-    public function copyFile(array $source, array $dest): bool
+    public function copyFileStream(array $source, array $dest): bool
     {
         // simplified run - no moving nodes, just use existing ones
         $src = Stuff::arrayToPath($source);
@@ -111,13 +104,15 @@ class ProcessFile implements IProcessFiles
                 return false;
             }
 
-            return $this->saveFile($dest, $this->readFile($source));
+            $sourceStream = $this->readFileStream($source);
+            rewind($sourceStream);
+            return $this->saveFileStream($dest, $sourceStream);
         } catch (MapperException $ex) {
             throw new FilesException($this->getFlLang()->flCannotCopyFile($src, $dst), $ex->getCode(), $ex);
         }
     }
 
-    public function moveFile(array $source, array $dest): bool
+    public function moveFileStream(array $source, array $dest): bool
     {
         try {
             $ptDst = new ArrayPath();
@@ -147,19 +142,6 @@ class ProcessFile implements IProcessFiles
                 Stuff::arrayToPath($source),
                 Stuff::arrayToPath($dest)
             ), $ex->getCode(), $ex);
-        }
-    }
-
-    public function deleteFile(array $entry): bool
-    {
-        try {
-            $record = $this->getEntry($entry);
-            if (is_null($record)) {
-                return true;
-            }
-            return $record->delete();
-        } catch (MapperException $ex) {
-            throw new FilesException($this->getFlLang()->flCannotRemoveFile(Stuff::arrayToPath($entry)), $ex->getCode(), $ex);
         }
     }
 

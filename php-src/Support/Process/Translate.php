@@ -11,16 +11,11 @@ namespace kalanis\kw_files_mapper\Support\Process;
  */
 class Translate
 {
-    /** @var string */
-    protected $current = 'name';
-    /** @var string */
-    protected $parent = 'parentId';
-    /** @var string */
-    protected $primary = 'id';
-    /** @var string */
-    protected $content = 'content';
-    /** @var string|null */
-    protected $created = 'created';
+    protected string $current = 'name';
+    protected string $parent = 'parentId';
+    protected string $primary = 'id';
+    protected string $content = 'content';
+    protected ?string $created = 'created';
 
     public function getCurrentKey(): string
     {

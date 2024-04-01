@@ -33,31 +33,38 @@ class Factory extends original_access\Factory
     {
         if (is_string($param)) {
             return new original_access\CompositeAdapter(
-                new original_processing\Volume\ProcessNode($param, $this->lang),
-                new original_processing\Volume\ProcessDir($param, $this->lang),
-                new original_processing\Volume\ProcessFile($param, $this->lang)
+                new original_processing\Volume\ProcessNode($param, $this->getFlLang()),
+                new original_processing\Volume\ProcessDir($param, $this->getFlLang()),
+                new original_processing\Volume\ProcessFile($param, $this->getFlLang()),
+                new original_processing\Volume\ProcessFile($param, $this->getFlLang())
             );
 
         } elseif (is_array($param)) {
             if (isset($param['path']) && is_string($param['path'])) {
                 return new original_access\CompositeAdapter(
-                    new original_processing\Volume\ProcessNode($param['path'], $this->lang),
-                    new original_processing\Volume\ProcessDir($param['path'], $this->lang),
-                    new original_processing\Volume\ProcessFile($param['path'], $this->lang)
+                    new original_processing\Volume\ProcessNode($param['path'], $this->getFlLang()),
+                    new original_processing\Volume\ProcessDir($param['path'], $this->getFlLang()),
+                    new original_processing\Volume\ProcessFile($param['path'], $this->getFlLang()),
+                    new original_processing\Volume\ProcessFile($param['path'], $this->getFlLang())
+                );
+
+            } elseif (isset($param['source']) && is_object($param['source']) && ($param['source'] instanceof original_access\CompositeAdapter)) {
+                return $param['source'];
+
+            } elseif (isset($param['source']) && is_object($param['source']) && ($param['source'] instanceof IStorage)) {
+                return new original_access\CompositeAdapter(
+                    new original_processing\Storage\ProcessNode($param['source'], $this->getFlLang()),
+                    new original_processing\Storage\ProcessDir($param['source'], $this->getFlLang()),
+                    new original_processing\Storage\ProcessFile($param['source'], $this->getFlLang()),
+                    new original_processing\Storage\ProcessFileStream($param['source'], $this->getFlLang())
                 );
 
             } elseif (isset($param['source']) && is_string($param['source'])) {
                 return new original_access\CompositeAdapter(
-                    new original_processing\Volume\ProcessNode($param['source'], $this->lang),
-                    new original_processing\Volume\ProcessDir($param['source'], $this->lang),
-                    new original_processing\Volume\ProcessFile($param['source'], $this->lang)
-                );
-
-            } elseif (isset($param['source']) && is_object($param['source']) && ($param['source'] instanceof IStorage)) {
-                return new original_access\CompositeAdapter(
-                    new original_processing\Storage\ProcessNode($param['source'], $this->lang),
-                    new original_processing\Storage\ProcessDir($param['source'], $this->lang),
-                    new original_processing\Storage\ProcessFile($param['source'], $this->lang)
+                    new original_processing\Volume\ProcessNode($param['source'], $this->getFlLang()),
+                    new original_processing\Volume\ProcessDir($param['source'], $this->getFlLang()),
+                    new original_processing\Volume\ProcessFile($param['source'], $this->getFlLang()),
+                    new original_processing\Volume\ProcessFile($param['source'], $this->getFlLang())
                 );
 
             } elseif (isset($param['source']) && is_object($param['source']) && ($param['source'] instanceof ARecord)) {
@@ -66,28 +73,33 @@ class Factory extends original_access\Factory
                     : null
                 ;
                 return new original_access\CompositeAdapter(
-                    new Processing\Mapper\ProcessNode($param['source'], $trans, $this->lang),
-                    new Processing\Mapper\ProcessDir($param['source'], $trans, $this->lang),
-                    new Processing\Mapper\ProcessFile($param['source'], $trans, $this->lang)
+                    new Processing\Mapper\ProcessNode($param['source'], $trans, $this->getFlLang()),
+                    new Processing\Mapper\ProcessDir($param['source'], $trans, $this->getFlLang()),
+                    new Processing\Mapper\ProcessFile($param['source'], $trans, $this->getFlLang()),
+                    new Processing\Mapper\ProcessStream($param['source'], $trans, $this->getFlLang())
                 );
             }
 
         } elseif (is_object($param)) {
-            if ($param instanceof IStorage) {
+            if ($param instanceof original_access\CompositeAdapter) {
+                return $param;
+            } elseif ($param instanceof IStorage) {
                 return new original_access\CompositeAdapter(
-                    new original_processing\Storage\ProcessNode($param, $this->lang),
-                    new original_processing\Storage\ProcessDir($param, $this->lang),
-                    new original_processing\Storage\ProcessFile($param, $this->lang)
+                    new original_processing\Storage\ProcessNode($param, $this->getFlLang()),
+                    new original_processing\Storage\ProcessDir($param, $this->getFlLang()),
+                    new original_processing\Storage\ProcessFile($param, $this->getFlLang()),
+                    new original_processing\Storage\ProcessFileStream($param, $this->getFlLang())
                 );
             } elseif ($param instanceof ARecord) {
                 return new original_access\CompositeAdapter(
-                    new Processing\Mapper\ProcessNode($param, null, $this->lang),
-                    new Processing\Mapper\ProcessDir($param, null, $this->lang),
-                    new Processing\Mapper\ProcessFile($param, null, $this->lang)
+                    new Processing\Mapper\ProcessNode($param, null, $this->getFlLang()),
+                    new Processing\Mapper\ProcessDir($param, null, $this->getFlLang()),
+                    new Processing\Mapper\ProcessFile($param, null, $this->getFlLang()),
+                    new Processing\Mapper\ProcessStream($param, null, $this->getFlLang())
                 );
             }
         }
 
-        throw new FilesException($this->getLang()->flNoAvailableClasses());
+        throw new FilesException($this->getFlLang()->flNoAvailableClasses());
     }
 }

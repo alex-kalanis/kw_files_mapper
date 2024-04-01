@@ -1,6 +1,6 @@
 <?php
 
-namespace MapperNoRootTests;
+namespace MapperTests;
 
 
 use kalanis\kw_files\FilesException;
@@ -8,7 +8,7 @@ use kalanis\kw_mapper\MapperException;
 use kalanis\kw_paths\PathsException;
 
 
-class FileTest extends AStorageTest
+class StreamTest extends AStorageTest
 {
     /**
      * @throws FilesException
@@ -24,11 +24,8 @@ class FileTest extends AStorageTest
 
         $this->dataRefill();
 
-        $lib = $this->getFileLib();
-        $this->assertEquals('qwertzuiopasdfghjklyxcvbnm0123456789', $lib->readFile(['dummy2.txt']));
-        $this->assertEquals('asdfghjklyxcvbnm0123456789', $lib->readFile(['dummy2.txt'], 10));
-        $this->assertEquals('asdfghjkly', $lib->readFile(['dummy2.txt'], 10, 10));
-        $this->assertEquals('qwertzuiop', $lib->readFile(['dummy2.txt'], null, 10));
+        $lib = $this->getStreamLib();
+        $this->assertEquals('qwertzuiopasdfghjklyxcvbnm0123456789', $this->streamToString($lib->readFileStream(['dummy2.txt'])));
     }
 
     /**
@@ -45,9 +42,9 @@ class FileTest extends AStorageTest
 
         $this->dataRefill();
 
-        $lib = $this->getFileLib();
+        $lib = $this->getStreamLib();
         $this->expectException(FilesException::class);
-        $lib->readFile(['unknown']);
+        $lib->readFileStream(['unknown']);
     }
 
     /**
@@ -64,9 +61,9 @@ class FileTest extends AStorageTest
 
         $this->dataRefill();
 
-        $lib = $this->getFileLib();
+        $lib = $this->getStreamLib();
         $this->expectException(FilesException::class);
-        $lib->readFile(['sub', 'dummy_nope.txt']);
+        $lib->readFileStream(['sub', 'dummy_nope.txt']);
     }
 
     /**
@@ -83,9 +80,9 @@ class FileTest extends AStorageTest
 
         $this->dataRefill();
 
-        $lib = $this->getFileLib();
-        $this->assertTrue($lib->saveFile(['extra.txt'], 'qwertzuiopasdfghjklyxcvbnm0123456789'));
-        $this->assertEquals('qwertzuiopasdfghjklyxcvbnm0123456789', $lib->readFile(['extra.txt']));
+        $lib = $this->getStreamLib();
+        $this->assertTrue($lib->saveFileStream(['extra.txt'], $this->stringToStream('qwertzuiopasdfghjklyxcvbnm0123456789')));
+        $this->assertEquals('qwertzuiopasdfghjklyxcvbnm0123456789', $this->streamToString($lib->readFileStream(['extra.txt'])));
     }
 
     /**
@@ -102,13 +99,11 @@ class FileTest extends AStorageTest
 
         $this->dataRefill();
 
-        $lib = $this->getFileLib();
-        $this->assertTrue($lib->saveFile(['sub', 'foul.txt'], 'qwertzuiopasdfghjklyxcvbnm0123456789'));
-        $this->assertEquals('qwertzuiopasdfghjklyxcvbnm0123456789', $lib->readFile(['sub', 'foul.txt']));
-        $this->assertTrue($lib->saveFile(['sub', 'foul.txt'], 'qwertzuiopasdfghjklyxcvbnm0123456789', 3));
-        $this->assertEquals(chr(0) . chr(0) . chr(0) . 'qwertzuiopasdfghjklyxcvbnm0123456789', $lib->readFile(['sub', 'foul.txt']));
-        $this->assertTrue($lib->saveFile(['sub', 'foul.txt'], 'qwertzuiopasdfghjklyxcvbnm0123456789', 42, FILE_APPEND));
-        $this->assertEquals(chr(0) . chr(0) . chr(0) . 'qwertzuiopasdfghjklyxcvbnm0123456789' . chr(0) . chr(0) . chr(0) . 'qwertzuiopasdfghjklyxcvbnm0123456789', $lib->readFile(['sub', 'foul.txt']));
+        $lib = $this->getStreamLib();
+        $this->assertTrue($lib->saveFileStream(['sub', 'foul.txt'], $this->stringToStream('qwertzuiopasdfghjklyxcvbnm0123456789')));
+        $this->assertEquals('qwertzuiopasdfghjklyxcvbnm0123456789', $this->streamToString($lib->readFileStream(['sub', 'foul.txt'])));
+        $this->assertTrue($lib->saveFileStream(['sub', 'foul.txt'], $this->stringToStream('qwertzuiopasdfghjklyxcvbnm0123456789'), FILE_APPEND));
+        $this->assertEquals('qwertzuiopasdfghjklyxcvbnm0123456789qwertzuiopasdfghjklyxcvbnm0123456789', $this->streamToString($lib->readFileStream(['sub', 'foul.txt'])));
     }
 
     /**
@@ -125,10 +120,11 @@ class FileTest extends AStorageTest
 
         $this->dataRefill();
 
-        $lib = $this->getFileLib();
-        $this->assertTrue($lib->copyFile(['dummy2.txt'], ['extra1.txt']));
-        $this->assertTrue($lib->moveFile(['extra1.txt'], ['extra2.txt']));
-        $this->assertTrue($lib->deleteFile(['extra2.txt']));
-        $this->assertTrue($lib->deleteFile(['extra3.txt']));
+        $lib = $this->getStreamLib();
+        $this->assertTrue($lib->copyFileStream(['dummy2.txt'], ['extra1.txt']));
+        $this->assertTrue($lib->moveFileStream(['extra1.txt'], ['extra2.txt']));
+        $lib2 = $this->getFileLib();
+        $this->assertTrue($lib2->deleteFile(['extra2.txt']));
+        $this->assertTrue($lib2->deleteFile(['extra3.txt']));
     }
 }

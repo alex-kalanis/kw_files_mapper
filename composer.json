@@ -9,18 +9,19 @@
     "license": "BSD-3-Clause",
     "type": "library",
     "require": {
-        "alex-kalanis/kw_files": ">=3.2",
-        "alex-kalanis/kw_mapper": ">=2.0",
+        "alex-kalanis/kw_files": ">=4.0 <5",
+        "alex-kalanis/kw_mapper": ">=3.0 <4",
+        "alex-kalanis/kw_paths": ">=4.0 <5",
         "ext-mbstring": "*",
-        "php": ">=7.2.0"
+        "php": ">=7.4.0"
     },
     "require-dev": {
-        "alex-kalanis/kw_storage": ">=3.0",
-        "alex-kalanis/kw_paths": ">=2.0",
+        "alex-kalanis/kw_storage": ">=5.0 <6",
+        "shipmonk/composer-dependency-analyser": "^1.4",
         "phpstan/phpstan": "^1.0",
         "phpstan/phpstan-phpunit": "^1.0",
         "friendsofphp/php-cs-fixer": "^3.0",
-        "phpunit/phpunit": ">=7.2 <=9",
+        "phpunit/phpunit": ">=8.0 <=9",
         "ext-pdo": "*"
     },
     "suggest": {

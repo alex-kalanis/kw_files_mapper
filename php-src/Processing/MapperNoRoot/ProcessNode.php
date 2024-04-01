@@ -19,15 +19,14 @@ use kalanis\kw_mapper\Records\ARecord;
  */
 class ProcessNode implements IProcessNodes
 {
-    use TLang;
     use TEntryLookup;
+    use TLang;
 
-    /** @var ARecord */
-    protected $record = null;
+    protected ARecord $record;
 
     public function __construct(ARecord $record, ?Process\Translate $translate = null, ?IFLTranslations $lang = null)
     {
-        $this->setLang($lang);
+        $this->setFlLang($lang);
         $this->record = $record;
         $this->setTranslation($translate);
     }
